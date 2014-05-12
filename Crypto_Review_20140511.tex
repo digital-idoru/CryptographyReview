@@ -1,0 +1,320 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage[]{algorithm2e}
+\author{Daniel S. Hono II \\ \{DigitalRunes on Freenode\}}
+\title{Cryptography Review}
+
+
+\newtheorem{thm}{Theorem}
+\newtheorem{mydef}{Definition}
+\newtheorem{mynote}{Note}
+
+\begin{document}
+\maketitle
+\pagebreak
+
+\section{Number Theory Reivew}
+
+\subsection{Modular Arithmetic}
+\begin{mydef}
+An integer $a \in \mathbb{Z}$ is congruent modulo $n$ to another integer $b \in \mathbb{Z}$, $a \equiv b \text{ (mod n)}$, if and only if $n | a - b$. 
+\end{mydef}
+This relation is an equivalence relation, and the set of congruence classes under this equivalence relation forms a ring $\left( \mathbb{Z}_{n}, +, \times \right)$. The operations on congruence classes are defined as follows:
+\begin{description}
+	\item[Addition] [a] + [b] = [a + b] 
+	\item[Multiplication] [a] * [b] = [a*b]
+\end{description}
+These definitions are justified and are consistent by the definition of equivalence modulo $n$. 
+
+The set of integers modulo n under just addition forms a group, i.e, every element has an inverse. 
+
+If $n$ is a prime number $p$ then $\mathbb{Z}_p$ is a field with $p$ elements. Every element has a multiplicative inverse in $\mathbb{Z}_{p}$ for some prime $p$  as every element is coprime to the modulus. It turns out that the necessary and sufficient conditions for an element to have a multiplicative inverse modulo $n$ is such that $gcd(x \in \mathbb{Z}_{n}, n) = 1$, and the inverse can be found by using the Extended Euclidean Algorithm. This is accomplished by solving a certain instances of Bezout's Identity which will always have a solution over the integers, i.e $ax + by = gcd(a, b)$ always has a solution $x, y \in \mathbb{Z}$. When $gcd(a, b) = 1$ is the special case when finding inverses. 
+
+
+\subsection{Fermat's Little Theorem}
+\begin{thm}[Fermat's Little Theorem]
+Suppose that $p$ is a prime number, then $\forall x[p \nmid x]  \Rightarrow x^{p-1} \equiv 1 \text{ (mod p)}$. This also states,  by simple manipulation of the terms, that $\forall x: x^{p} \equiv x \text{ (mod p)}$. 
+\end{thm}
+
+This is then generalized by Euler's Theorem.
+
+\begin{thm}[Euler's Theorem]
+$\forall n$ and $gcd(a, n) = 1$, then $a^{\phi(n)} \equiv 1 \text{ (mod n)}$. 
+\end{thm}
+Where $\phi(n)$ counts the number of numbers coprime to $n$ between $1$ and $n$. In particular, if $p$ is a prime number, then $\phi(p) = p-1$. If $y = pq$, where $p$ and $q$ are prime numbers, then $\phi(y) = \phi(p)\phi(q) = (p-1)(q-1)$. In general if $gcd(a, b) = 1$, i.e if $a$ and $b$ are coprime, then $\phi(ab) = \phi(a)\phi(b)$. 
+
+$\textbf{Nota Bene:}$ Beware the Carmichael Numbers. They pretend to be primes in the sense that if $c$ is a Carmichael Number then $a^{c} = a \text{ (mod c)}$ for every $a$ such that $gcd(a, c) = 1$. They screw up some basic primality testing algorithms. There are infinitely many of these things. 
+
+\subsection{The Group $\mathbb{Z}_{n}^{\ast}$}
+For every Ring $\mathbb{Z}_{n}$ there exists a subgroup of elements that have multiplicative inverses modulo $n$. This group is called the group of units modulo $n$. In symbols we write $\mathbb{Z}_{n}^{\ast}$. This group consists of all elements of $\mathbb{Z}_{n}$ that are coprime to the modulus $n$ An immediate consequence of this fact is that if $p$ is a prime, then $\mathbb{Z}_{p}$ is a field, i.e. every nonzero element has a multiplicative inverse as every element between $1$ and $p$ is coprime to $p$.
+
+Why? Well, if $a \in \mathbb{Z}_{n}$ and $gcd(a, n) = 1$, then the Bezout Identity $ax + ny = 1$ has a solution over the integers. So we get that $ny = 1 - ax \Rightarrow 1 \equiv ax \text{ (mod n)}$. The proof of the other direction is basically the same and is very simple.  
+
+Thus, the number of elements (also called the order of the group) is equal to $\phi(n)$, i.e $|\mathbb{Z}_{n}^{\ast}| = \phi(n)$. If $p$ is a prime, then $|\mathbb{Z}_{p}^{\ast}| = p-1$.  
+
+These groups are $\textbf{cyclic}$, i.e, $\exists x\in \mathbb{Z}_{n}^{\ast}$ such that $\langle x \rangle \approx \mathbb{Z}_{n}^{\ast}$. This means that there is a generator of the group, i.e an element of order $\phi(n)$. An element generates a group if raising the element to powers eventually produces every element of the group. This fact is important to us as many cryptosystems depend on using a generator of the group. 
+
+\subsection{Quadratic Residues: $\mathcal{QR}_{n}$}
+Given a prime $p$, then from the previous section we know that $\mathbb{Z}_{p}^{\ast} = \{1, \ldots, p-1 \}$. We wish to study the elements that are squares of other elements. 
+
+Example: in $\mathbb{Z}_{7}^{\ast}$ we get that $\mathcal{QR}_{7} = \{1, 2, 4\}$. We see this because: 
+\[
+	1 \  2 \  3 \  4 \  5 \  6 
+\]
+all square to 
+\[
+	1 \ 4 \ 2 \ 2 \ 4 \ 1
+\]
+
+Empirically, we see that $|\mathcal{QR}_{7}| = 3 = \frac{7 - 1}{2}$. Is it true in general that $|\mathcal{QR}_{p}| = \frac{p-1}{2}$? We see that $\forall x \in \mathbb{Z}_{p}^{\ast}$, $x$ has two square roots. 
+
+\begin{thm} 
+Given $a\in\mathbb{Z}_{p}^{\ast}$. $a \in \mathcal{QR}_{p} \iff a^{\frac{p-1}{2}} \equiv 1 \text{ (mod p)}$. 
+\end{thm}
+
+\begin{proof}
+if $a \equiv x^{2} \text{ (mod p)}$ we get: 
+
+\begin{align*}
+	a^{\frac{p-1}{2}} \equiv (x^2)^{\frac{p-1}{2}} \text{ (mod p)} \\
+	 \equiv x^{p-1} \text{ (mod p)} \\
+	 \equiv 1 \text{ (mod p)}
+\end{align*}
+Where the last line holds by Fermat's Little Theorem. 
+\end{proof}
+It is clear that if $a \in \mathbb{Z}_{p}^{\ast}$ then $a$ has a square root modulo p if and only if $a$ is a quadratic residue modulo p. When searching for square roots, one has to be sure that the number is a quadratic residue. If it is not a quadratic residue, then it simply does not have a square root modulo p. 
+If $p$ is an odd prime, then $p$ must be either one of the following form: 
+
+\begin{enumerate}
+	\item $4n + 1$
+	\item $4n + 3$
+\end{enumerate}
+
+If $p$ is of the form of case 2, then there exist a polynomial time algorithm, but it is an open problem for case 1. (WHY? I think this is for finding square roots of a number modulo p). 
+
+If we're looking to solve the equation $x^{2} \equiv b$ mod n, where $n = pq$ for $p, q$ are prime numbers. Then solving this equation is equivalent to factoring $n$. If $p \equiv 3$ mod $4$ then let $x = y^{\frac{p+1}{4}}$ mod $p$. 
+\begin{enumerate}
+	\item If $y$ has a square root modulo $p$, then the square roots of $y$ mod $p$ are $\pm x$. 
+	\item if $y$ has no square roots mod $p$, then $-y$ has square roots mod $p$ and are $\pm x$. 
+\end{enumerate}
+
+
+
+
+\subsection{Chinese Remainder Theorem}
+
+
+\section{Algorithms}
+
+\subsection{EGCD - Euclidean Algorithm}
+The extended Euclidean algorithm is used to compute the GCD of two integers and to compute the Bezout coefficients. It can be used to compute inverses of elements modulo n. 
+
+\subsection{Russian Peasant - Modular Exponentiation}
+The Russian Peasant algorithm is used for fast exponentiation modulo n.
+
+
+\begin{algorithm}[H]
+	\KwData{a modulus $n$, a base $y$ and an exponent $x$}
+	\KwResult{$y^{x}$ mod $n$}
+	$S \gets 1$;\\
+	\While{$x > 0$} {
+		\If{$\left(\left(x \text{ mod 2 }\right) == 1 \right)$} {$S \gets \left(S * y \right) \text{ mod } n\;$;}
+		$x \gets \frac{x}{2}$; \\
+		$y \gets y^{2} \text{ mod } n$;
+	}
+\end{algorithm}
+\subsection{Pollard $\rho$}
+The Pollard-$\rho$ algorithm is used to factor numbers. The probabilistic time depends on the birthday paradox. I think the "complexity" of the heuristic is like $\mathcal{O}(\sqrt{p})$ where $p$ is the (which??) prime factor.  
+
+
+\subsection{Pohlig-Hellman}
+An algorithm for solving instances of the discrete log problem. This algorithm seems to be especially effective against primes $p$ such that $p-1$ has so called smooth factors, i.e small factors. 
+
+\subsection{Miller-Rabin}
+A primality testing algorithm that depends on that fact that there are just as many witnesses of compositeness as there are not. Basically, if we simply use Fermat's Little Theorem to try to test if a number is prime, then we run the risk of running into the scary Carmichael numbers (as noted in previous section). A smarter way of testing for primality is to compromise on exactness and settle for a result of "probably prime" instead of "definitely prime". The probability, however, increases dramatically as successful tests are carried out. 
+
+The idea is this: Given an integer $n$, we want to check if $n$ is a prime number. If $n$ is even then this is pointless as it is obviously composite. So, given an odd number $n$ we can factor out the highest power of two that divides $n-1$ (which will be even as $n$ itself is assume to be odd). Namely, we get that $n-1 = 2^{k}m$ for some $k$ and $m$ an odd number. We then compute a list, where each element is calculate modulo $n$. The list is:
+\[
+	\left[a^{m}, a^{2m}, a^{4m}, a^{8m}, \ldots, a^{2^{k}m}\right]
+\]
+Basically, we calculate a list of squares of $a^{m}$ for some randomly chosen $a$. Each operation is conducted modulo $n$ so each element of the list falls into the group $\mathbb{Z}_{n}$. We can tell a lot about this mysterious number $n$ by just looking at these sequences for many choices of $a$. 
+
+There are $4$ cases that can happen. 
+\begin{enumerate}
+	\item If $a^{2^{k}m} \not\equiv_{n} 1$ Then $n$ has to be a composite number, it failed the Fermat test!
+	\item If all elements of the list are just $1$, then all we can say is "probably prime". 
+	\item The other option is then at some point, the list started with values not equal to 1 and then transitioned to 1. If $-1$ AKA $n-1$ appears in the sequence, then we can say that $n$ is "probably prime". Otherwise, a nontrivial square root of $1$ must have appeared and thus we know that $n$ must be composite. 
+\end{enumerate}
+We become more and more certain that $n$ is a prime if we choose many different $a$s. The test really tells us definitely if a number is composite, but only tells us that a number has a high probability of being not-composite. 
+
+\subsection{Baby Step Giant Step}
+The Baby Step Giant Step algorithm for solving discrete log problems is as follows: 
+If we're given a prime $p$ and a generator $g$, we're looking to solve the problem $g^{x} \equiv_{p} \beta$. The first step is to calculate the value $M = \lceil(p-1)^{\frac{1}{2}}\rceil$. $x$ is our unknown, however, we know we can represent it with 2 digits in a base $M$ representation, namely, we know that $x = x_{1}M^{1} + x_{2}M^{0} = x_{1}M + x_{2}$. We can exploit this "special structure" of $x$ to try and find a solution to the discrete log problem. 
+
+We proceed by noticing that if $g^{x} \equiv_{p} \beta$ then $g^{x_{1}M + x_{0}} = g^{x_{0}}(g^{M})^{x_{1}} = \beta$. Thus, $g^{x_{0}} \equiv_{p} \beta(g^{-M})^{x_{1}} = \beta(g^{M})^{-x_{1}}$. We use this fact to find $x$. Namely, we create two lists:
+The list of "Baby Steps":
+\[
+	\left[g^{0}, g^{1}, \ldots, g^{M-1}\right]
+\] 
+Each element of the list of baby steps represents a possible value for $x_{0}$. The "Giant Step" list is given by:
+\[
+	\left[\beta, \beta(g^{-M}), \beta(g^{-2M}), \ldots, \beta(g^{-M})^{M-1}\right]
+\]
+If there are elements of these lists that collide, i.e are the same, then we can find $x$. Suppose an element of the baby list appears in the giant list. Then we know that for some $y_{0}, y_{1}$, $g^{y_{0}} = \beta(g^{-M})^{y_{1}}$. We can then solve for $x$! Namely, $x = y_{0} + y_{1}M$. The $y_{0}$ being the position of the collision in the baby list, and $y_{1}$ being the position of the collision in the giant list. 
+\subsection{Elliptic Curve Factoring}
+\subsection{Schoof's Algorithm for Counting Points on Elliptic Curves over Finite Fields}
+
+\section{Protocols}
+\subsection{Symmetric Key Ciphers}
+This is like the stuff we did at the beginning of class with the Hill Cipher, Affine Ciphers, Shift Ciphers, etc. The thing they all have in common is that a key is used for both encrypting and decrypting, so this one key has to remain secret or the entire cover is shot to hell. 
+
+
+\subsection{RSA}
+The RSA encryption protocol is an example of asymmetric cryptography as it relies on a public key/private key system. The system is as follows.
+
+Two large primes $p, q$ are chosen such that $p \not = q$. Then choose an encryption exponent $e$ such that $gcd(e, \phi(pq)) = 1$. This implies that $e \in \mathbb{Z}_{pq}^{\ast}$, i.e. $e$ has an inverse modulo $n$, let this inverse be $d$, i.e. $de \equiv 1$ mod $pq$.
+
+ The numbers $n = pq$ and $e$ are assumed to be public, and $d, p, q$ are kept secret. If $M$ is the encoding of the message to encrypt, then $M \mapsto M^{e} = C$ mod $n$. One has to be sure, however, that $M \in \mathbb{Z}_{n}$ as information would be lost otherwise. 
+
+The decryption is carried out by raising $C$ to the decryption exponent: $C^{d}$ mod $n$. The private key is $d$ the inverse of the encrypting exponent. The public key is the encrypting exponent itself. Public keys are obviously known to the public, and thus if Alice wants to send a secure message to Bob, she encrypts the message with Bob's public key, and then transmits the message. Only Bob can decrypt the message as only $d$ is known to him. 
+
+The security of this protocol lies in the fact that finding the inverse of $e$ is a hard problem as one needs to know the factorization of $n = pq$. Factoring is empirically a hard problem. I don't think it is known to be $\textbf{NP}$-Complete, however. If someone were able to find a fast algorithm (fast being something that doesn't run in exponential time) then the security of RSA would be lost, and the system would be broken. 
+
+It seems that "safe" primes are those that are very very large and very close together. 
+
+\subsection{Discrete Log Based Protocols}
+\subsubsection{The Discrete Logarithm Problem}
+The security of the "classic" ElGamal protocol seems to depend on the hardness of solving the discrete log problem. The discrete log problem is as follows:
+Give $\alpha, \beta$ and $n$. Find an $x$ such that $\alpha^{x} \equiv \beta$ mod $n$. Usually, in cryptosystems anyway, $n$ is a prime number and $\alpha$ is a generator of $\mathbb{Z}_{n}^{\ast}$. 
+
+\subsubsection{Diffie-Hellman Key Exchange}
+An application of the discrete logarithm is the Diffie-Hellman Key Exchange. This protocol is used to establish a shared secret over an insecure channel. Pick a large prime $p$ and $g$ a generator of $\mathbb{Z}_{p}^{\ast}$. These are assumed to be public. Then: 
+
+\begin{align*}
+&A: \text{Picks a secret } \alpha\\
+&B: \text{Picks a secret } \beta \\
+&A \xrightarrow{g^{\alpha}} B \text{ and B computes } (g^{\alpha})^{\beta}\\
+&B \xrightarrow{g^{\beta}} A \text{ and A computes } (g^{\beta})^{\alpha}
+\end{align*}
+
+Then both $A$ and $B$ have a shared secret $g^{\alpha\beta}$. How is this safe? What if Eve is watching the wire and intercepting the communication? This is the "DH-Problem":
+
+\begin{align*}
+	&\text{Input: } g^{\alpha}, g^{\beta} \\
+	&\text{Output: } g^{\alpha\beta}
+\end{align*}
+
+Empirically this seems always to come down to computing the discrete log, which is empirically hard.
+\subsubsection{ElGamal}
+The ElGamal encryption protocol is as follows (All computations are done over $\mathbb{Z}_{p}$ where $p$ is a large prime). The information assumed to be public are: the prime $p$, a generator $g$ of $\mathbb{Z}_{p}^{\ast}$, $h = g^{\alpha}$, and random $r\in\mathbb{Z}_{p}^{\ast}$. The information kept private is $\alpha$, the exponent. Thus, one sees that this depends pretty much entirely on the empirical hardness of the discrete log problem. To summarize, the public key is the collection: $(p, g, h)$ and the private key is $\alpha$. 
+
+Let $M$ be the encoding of the message to encrypt. Then the sender picks the random value $r$ (a different $r$ must be chosen for each message or the system can be hacked easily, thus $r$ is an ephemeral key) and transmits the tuple: $(Mh^{r}, g^{r}) = C = (C_{1}, C_{2})$. Then, to decrypt, one sees that $(g^{r})^{\alpha} = (g^{\alpha})^{r}  = h^{r}$. Then the message $M$ can be recovered as $M = C_{1}(C_{2}^{\alpha})^{-1}$. 
+
+If $\alpha$ is compromised, then the system is hacked, but this always seems to come down to solving a discrete log problem (though it hasn't been proven that the two are equivalent). 
+
+A cool aspect of ElGamal is the fact that is has the property of being homomorphic. This comes into play during the voting scheme outlined in class. 
+
+\subsection{AES - Advanced Encryption Standard}
+The AES polynomial is of degree 8: $P(X) = X^{8} + X^{4} + X^{3} + X + 1 \in \mathbb{Z}_{2}[X] \cong GF(2^{8})$. 
+
+\subsection{Bit commitment Schemes}
+
+\subsection{Secret-Sharing}
+Suppose we want to share a secret among a group of $n$ people so that any subset of $t$ people can recover the secret. The threshold for recovering the secret is $t$. We can use the Shamir secret sharing scheme to accomplish this. We can also use modified schemes based on this so that only certain combinations of people (higher ranking people, perhaps) can get the secret along with others by manipulating how many shares of the secret are distributed to whom.  
+
+Suppose $M$ is the secret that is to be shared among the $n$ people. We want to develop a $(t,n)$-scheme. Let $s(X) \equiv_{p} M + a_{1}X + \cdots + a_{t-1}X^{t-1}$. Each coefficient is a member of $\mathbb{Z}_{p}$ for some $p \gg M$. We then choose $n$ distinct values in $\mathbb{Z}_{p}$ normally once can just choose $1, 2, \ldots, n$ and $s_{i} \equiv_{p} s(x_{i})$ for each distinct value. Then the shares are distributed to the members are $\left(x_{i}, s_{i}\right)$. 
+
+Then, one can use polynomial interpolation on the $t$ shares to recover the original polynomial $s(X)$ and hence the secret $M$, which will be the constant term of the polynomial. This is secure as it takes exactly $t$ distinct points to uniquely determine a polynomial of degree $t-1$, if there are not enough people present, i.e, not enough shares, then the secret cannot be recovered as there are infinitely many polynomials of degree $t-1$ that pass through $q < t$ points, $M$ could literally be anything at that point. 
+
+For reference the Lagrange Interpolating polynomial for a polynomial of degree $t-1$ is given by:
+\[
+	P(X) = \sum_{j = 1}^{t} y_{j}\prod_{k=1, k\not=j}^{t} \frac{x - x_{k}}{x_j - x_k}
+\] 
+
+\subsection{Cryptographic Hash Functions}
+Cryptographic hash functions are used in numerous applications, for example, suppose we want to securely store passwords on a server such that if the server is compromised, then the passwords are still secret and safe. When authenticating with the server, the user would transmit their password, which would then be hashed by the hash function, and then checked to see if the has has been stored in the database. 
+
+The value computed by the hash function is called the message digest, and each message digest should be the same length regardless of the length of the input string. If $H$ is our hash function, then $H:$large set$\mapsto$ smaller set. The problem with this, however, is that collisions can occur. Namely, suppose $x\not=y$, then a collision is $H(x) = H(y)$. We want hash functions that limit the security risks associated with hash functions. 
+
+We wanting finding pre-images for a given hash $H(m)$ to be a computationally hard problem (we want $H$ to be a "trap-door" function. A function that is easy to compute in one direction, but impossible to reverse. The existence of such trap-door functions hasn't been proven I think). 
+
+Given some $m$, we also want it to be a hard problem to find $m'$ such that $H(m) = H(m')$. If the complexity of this problem is hard for $H$, then $H$ is called weakly collision free. If given $H$ it is a hard problem to find $m$, and $m'$ such that $H(m) = H(m')$ then we call $H$ strongly collision free. 
+
+Cryptographic hash functions these days seem to be designed to work somewhat slowly to prevent attackers from being able to brute force quickly. Salts are also added to the message to be hashed for added security. Rainbow tables are used as attacks against hash functions. 
+
+Applications also include HMACS (see RFC 2104 for some details). 
+
+\subsection{ElGamal - Elliptic Curve Style}
+We want to use ElGamal with elliptic curves. For an element $p \in E$, where $E$ is the graph of an elliptic curve with the standard group structure defined. Then the order of $p$ is the smallest such $k$ such that $kp = \infty$, which is the identity element in $E$. 
+
+In general, $E$ is not cyclic! What we want is a point $P$ on the curve such that $|P|$ = large prime. We then "pretend" that $P$ is a generator. The secret key, like in the classical ElGamal protocol, is a secret scalar $\alpha$. We then compute $H = \alpha P$. We then encode our message $M$ such that it is a point on the curve $E$. Then, $encrypt(M) = \text{ Pick random r and send } (rP, rH+M)$. 
+
+To decrypt find $-(rH)$ and then add to the payload. 
+
+
+\subsection{Voting Protocol: Cramer-Gennaro-Schoenmakers Scheme}
+\section{Signatures}
+There exists protocols based on the above encryption protocols to digitally sign a message so that the source can be verified or the message authenticated. 
+
+\subsection{RSA}
+The message $M$ is public, and I want to fix my signature to it. Let $n = pq$ where $p,q$ are two large, secret, differing primes. Then let $e$ such that $gcd(e, \phi(n)) = 1$, and let $d$ be the inverse of $e$ modulo n. Then $sigRSA(M) = (M, M^{d} = S)$. Then $e$ is public, so verifying the message is simply $verifyRSA(M)  = S^{e} = M^{ed} = M$. 
+
+For long messages, M is broken into blocks of certain lengths. Obviously, one cannot use the same information for both encrypting and signing as the information that should be kept private in one situation is made public in the other, i.e the public and private keys are switched. 
+
+If the message has been tampered with, or if the signature has been tampered with, then the verify step will fail to produce the correct message. 
+
+
+\subsection{ElGamal}
+For a large prime $p$ choose a generator of $\mathbb{Z}_{p}^{\ast}$, g. Then $\alpha$ is secret, and compute $H = g^{\alpha}$ To sign a message $M$ pick a random $k$ and compute $x = g^{k}$. Then the signature $y = (M - x\alpha)k^{-1}$, so $sigELGAMAL(M) = (M, y)$. 
+The verification step is done as follows:
+\begin{align*}
+&ky = M-x\alpha \in \mathbb{Z}_{p}^{\ast} \\
+&M = x\alpha + ky \in \mathbb{Z}_{p}^{\ast} \\
+&g^{M} = g^{x\alpha}g^{ky} \in \mathbb{Z}_{p}  \\
+&= H^{x} x^{y} \in \mathbb{Z}_{p}
+\end{align*}
+
+
+\subsection{Blind Signatures}
+Suppose someone has to sign a message $M$, but the message cannot be revealed to this person. Then there is a clever way of doing it. The question is really, how does one get $M^{d}$ without revealing $M$? 
+
+Chose random $r$ which is kept secret. Then have the person sign $Mr^{e}$ i.e computes $(Mr^{e})^{d} = M^{d}r^{rd} = M^{d}r$. Then the other party just computes $r^{-1}$ and then $M^{d}rr^{-1} = M^{d}$. Message signed. 
+
+
+\section{Zero Knowledge Proofs - Interactive Proof Systems}
+The goal of zero knowledge proofs is to prove to somebody that certain sensitive information is known without revealing exactly what that information is. These proofs are probabilistic in nature as one can only be sure with a high probability that the other person involved isn't cheating or lying in some way. The probabilities of repeated cheating become extremely low as the rounds go on so one can be fairly certain after a certain number of rounds. 
+
+The proofs are considered zero knowledge as a third party cannot distinguish a fake session from a real session, i.e. it is indistinguishable to a third party that the entire protocol is being faked or not. There is no information leakage going on. 
+
+It seems that, at least, some NP-hard problems have a zero knowledge protocol associated with them. For example, Graph 3-Colourability, Hamiltonian Circuit, etc. 
+
+\subsection{Ali Baba and the Thief}
+\subsection{Coin Flipping over the Telephone}
+\subsection{Discrete Logarithm}
+\subsection{Graph 3-Colourability}
+\subsection{Hamiltonian Circuit}
+\subsection{Graph Isomorphism}
+
+\section{Elliptic Curve Cryptography}
+
+\subsection{Group Structure} 
+\subsection{Cryptographic Protocols}
+\subsection{Hyperelliptic Curves - Connected Algebraic Groups of Dimension 1 / Jacobians of Curves / Algebraic Geometry}
+\subsection{Edwards Curve}
+
+\section{Special Topics*}
+\subsection{Network Security}
+\subsection{Differential Privacy}
+\subsection{One Time Pads}
+\subsection{Rant on Privacy or Why Cryptography Matters!!}
+
+\section{Appendix A}
+There is still much work to be done on these review notes for the Cryptography class. Some sections are missing and the number theory review section should be expanded. Every algorithm mentioned should have an implementation in my python crypto-library (which should be organized on github). 
+
+\end{document}
