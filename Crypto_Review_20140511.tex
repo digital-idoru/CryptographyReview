@@ -295,17 +295,6 @@ The proofs are considered zero knowledge as a third party cannot distinguish a f
 It seems that, at least, some NP-hard problems have a zero knowledge protocol associated with them. For example, Graph 3-Colourability, Hamiltonian Circuit, etc. 
 
 \subsection{Ali Baba and the Thief}
-\subsection{Quadratic Residues}
-Suppose that $y \in \mathcal{QR}_{n}$, i.e. $y$ is a quadratic residue and hence has square roots mod n, i.e. $y \equiv_{pq} x^{2}$ for some $x$ and $n = pq$ where $p, q$ are two large differing primes. Suppose Peggy claims to know a square root and wants to convince Victor. 
-\begin{align*}
-	&P: \text{ computes } u_{1} = r^{2} \text{ mod } n, u_{2} = yu_{1}^{-1} \text{ Where r is a random number differing each round.} \\
-	&P: \xrightarrow{\{u_1, u_2\}} V \\
-	&V: \text{ Checks if } u_{1}u_{2} \equiv_{n} y \text{ and then requests the square root of either } u_{1} \text{ or } u_{2} \\
-	&P: \xrightarrow{r \text{ or } xr^{-1}} V \\
-	&V: \text{ Confirms by squaring the response} \\ 
-\end{align*}
-
-
 \subsection{Discrete Logarithm}
 The zero knowledge protocol for the Discrete Logarithm problem goes something like this. Suppose that $h = g^{\alpha}$ mod $p$ is public information. Peggy ($P$ for short) claims to know a solution, i.e, she claims to know $\alpha$. How can she prove that to Victor, $V$, without revealing any of the information. How can she convince Victor that she actually knows the solution to the discrete logarithm problem without any information leakage. 
 
@@ -321,6 +310,20 @@ Peggy and Victory set up a protocol.
 So how does this work? In the protocol, $y = hg^{-r} = g^{\alpha}g^{-r} = g^{\alpha - r}$. Peggy has to make sure that she sends a different $r$ with each round of the protocol, if she doesn't then Victor can easily discover the discrete log $\alpha$. If Peggy is reliably able to answer each of Victor's requests for the discrete log, then it is likely that she is not lying, in fact, $prob(\text{Peggy is cheating}) = \left(\frac{1}{2}\right)^{k}$ where $k$ is the number of rounds of the protocol. This probability converges to 0 extremely rapidly, so it doesn't take that many rounds to be pretty sure that Peggy is telling the truth, she can only reliably answer Victor's requests if she actually knows $\alpha$ (which means she can send $\alpha - r$ reliably). 
 
 No information is leaked here as it is impossible to discover the value of $\alpha$ without solving the discrete log problem, which seems to be computationally hard empirically. It is also impossible for an outside observer from being able to tell the difference between a fake round and a true round. This means that Peggy and Victor can be working together to make it seem like a true round is happening, but an outside observer would never be able to tell this just from the information being sent back and forth. This is the crux of the (perfect) zero knowledge protocol. 
+
+
+\subsection{Quadratic Residues}
+Suppose that $y \in \mathcal{QR}_{n}$, i.e. $y$ is a quadratic residue and hence has square roots mod n, i.e. $y \equiv_{pq} x^{2}$ for some $x$ and $n = pq$ where $p, q$ are two large differing primes. Suppose Peggy claims to know a square root and wants to convince Victor. 
+\begin{align*}
+	&P: \text{ computes } u_{1} = r^{2} \text{ mod } n, u_{2} = yu_{1}^{-1} \text{ Where r is a random number differing each round.} \\
+	&P: \xrightarrow{\{u_1, u_2\}} V \\
+	&V: \text{ Checks if } u_{1}u_{2} \equiv_{n} y \text{ and then requests the square root of either } u_{1} \text{ or } u_{2} \\
+	&P: \xrightarrow{r \text{ or } xr^{-1}} V \\
+	&V: \text{ Confirms by squaring the response} \\ 
+\end{align*}
+Again, $prob($Peggy Cheating$) = \left(\frac{1}{2}\right)^{k}$ where $k$ is the number of rounds performed. The protocol is zero knowledge as an outsider cannot distinguish between a false run and a real run, i.e, Eve can't tell if the entire thing is staged or not. 
+
+It is important to note that a different $r$ must be used for each round or the square root will be compromised.  
 
 
 \subsection{Graph 3-Colourability}
