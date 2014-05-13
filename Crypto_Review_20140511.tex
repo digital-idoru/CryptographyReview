@@ -297,6 +297,22 @@ It seems that, at least, some NP-hard problems have a zero knowledge protocol as
 \subsection{Ali Baba and the Thief}
 \subsection{Quadratic Residues}
 \subsection{Discrete Logarithm}
+The zero knowledge protocol for the Discrete Logarithm problem goes something like this. Suppose that $h = g^{\alpha}$ mod $p$ is public information. Peggy ($P$ for short) claims to know a solution, i.e, she claims to know $\alpha$. How can she prove that to Victor, $V$, without revealing any of the information. How can she convince Victor that she actually knows the solution to the discrete logarithm problem without any information leakage. 
+
+Peggy and Victory set up a protocol. 
+\begin{align*}
+	&P: \text{ picks a random r and computes } x = g^{r} (\text{mod } p), \text{ and } y = hg^{-r} (\text{mod } p) \\
+	&P: \xrightarrow{(x,y)} V \\
+	&V: \text{confirms that } xy \equiv_{p} h \text{ and asks for the discrete log of either x or y} \\
+	&P : \xrightarrow{(r \text{ or } xr^{-1})} V \\
+	&V: \text{ Confirms by squaring the number} 
+\end{align*}
+
+So how does this work? In the protocol, $y = hg^{-r} = g^{\alpha}g^{-r} = g^{\alpha - r}$. Peggy has to make sure that she sends a different $r$ with each round of the protocol, if she doesn't then Victor can easily discover the discrete log $\alpha$. If Peggy is reliably able to answer each of Victor's requests for the discrete log, then it is likely that she is not lying, in fact, the $prob(\text{Peggy is cheating}) = (\frac{1}{2})^{k}$ where $k$ is the number of rounds of the protocol. This probability converges to 0 extremely rapidly, so it doesn't take that many rounds to be pretty sure that Peggy is telling the truth, she can only reliably answer Victor's requests if she actually knows $\alpha$ (which means she can send $\alpha - r$ reliably. 
+
+No information is leaked here as it is impossible to discover the value of $\alpha$ without solving the discrete log problem, which seems to be computationally hard empirically. It is also impossible for an outside observer from being able to tell the difference between a fake round and a true round. This means that Peggy and Victor can be working together to make it seem like a true round is happening, but an outside observer would never be able to tell this just from the information being sent back and forth. This is the crux of the (perfect) zero knowledge protocol. 
+
+
 \subsection{Graph 3-Colourability}
 \subsection{Hamiltonian Circuit}
 \subsection{Graph Isomorphism}
