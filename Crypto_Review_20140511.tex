@@ -287,7 +287,7 @@ Suppose someone has to sign a message $M$, but the message cannot be revealed to
 Chose random $r$ which is kept secret. Then have the person sign $Mr^{e}$ i.e computes $(Mr^{e})^{d} = M^{d}r^{rd} = M^{d}r$. Then the other party just computes $r^{-1}$ and then $M^{d}rr^{-1} = M^{d}$. Message signed. 
 
 
-\section{Zero Knowledge Proofs - Interactive Proof Systems}
+\section{Zero Knowledge Proofs}
 The goal of zero knowledge proofs is to prove to somebody that certain sensitive information is known without revealing exactly what that information is. These proofs are probabilistic in nature as one can only be sure with a high probability that the other person involved isn't cheating or lying in some way. The probabilities of repeated cheating become extremely low as the rounds go on so one can be fairly certain after a certain number of rounds. 
 
 The proofs are considered zero knowledge as a third party cannot distinguish a fake session from a real session, i.e. it is indistinguishable to a third party that the entire protocol is being faked or not. There is no information leakage going on. 
@@ -296,6 +296,16 @@ It seems that, at least, some NP-hard problems have a zero knowledge protocol as
 
 \subsection{Ali Baba and the Thief}
 \subsection{Quadratic Residues}
+Suppose that $y \in \mathcal{QR}_{n}$, i.e. $y$ is a quadratic residue and hence has square roots mod n, i.e. $y \equiv_{pq} x^{2}$ for some $x$ and $n = pq$ where $p, q$ are two large differing primes. Suppose Peggy claims to know a square root and wants to convince Victor. 
+\begin{align*}
+	&P: \text{ computes } u_{1} = r^{2} \text{ mod } n, u_{2} = yu_{1}^{-1} \text{ Where r is a random number differing each round.} \\
+	&P: \xrightarrow{\{u_1, u_2\}} V \\
+	&V: \text{ Checks if } u_{1}u_{2} \equiv_{n} y \text{ and then requests the square root of either } u_{1} \text{ or } u_{2} \\
+	&P: \xrightarrow{r \text{ or } xr^{-1}} V \\
+	&V: \text{ Confirms by squaring the response} \\ 
+\end{align*}
+
+
 \subsection{Discrete Logarithm}
 The zero knowledge protocol for the Discrete Logarithm problem goes something like this. Suppose that $h = g^{\alpha}$ mod $p$ is public information. Peggy ($P$ for short) claims to know a solution, i.e, she claims to know $\alpha$. How can she prove that to Victor, $V$, without revealing any of the information. How can she convince Victor that she actually knows the solution to the discrete logarithm problem without any information leakage. 
 
@@ -304,11 +314,11 @@ Peggy and Victory set up a protocol.
 	&P: \text{ picks a random r and computes } x = g^{r} (\text{mod } p), \text{ and } y = hg^{-r} (\text{mod } p) \\
 	&P: \xrightarrow{(x,y)} V \\
 	&V: \text{confirms that } xy \equiv_{p} h \text{ and asks for the discrete log of either x or y} \\
-	&P : \xrightarrow{(r \text{ or } xr^{-1})} V \\
-	&V: \text{ Confirms by squaring the number} 
+	&P : \xrightarrow{(r \text{ or } \alpha-r)} V \\
+	&V: \text{ Confirms the response} 
 \end{align*}
 
-So how does this work? In the protocol, $y = hg^{-r} = g^{\alpha}g^{-r} = g^{\alpha - r}$. Peggy has to make sure that she sends a different $r$ with each round of the protocol, if she doesn't then Victor can easily discover the discrete log $\alpha$. If Peggy is reliably able to answer each of Victor's requests for the discrete log, then it is likely that she is not lying, in fact, the $prob(\text{Peggy is cheating}) = (\frac{1}{2})^{k}$ where $k$ is the number of rounds of the protocol. This probability converges to 0 extremely rapidly, so it doesn't take that many rounds to be pretty sure that Peggy is telling the truth, she can only reliably answer Victor's requests if she actually knows $\alpha$ (which means she can send $\alpha - r$ reliably. 
+So how does this work? In the protocol, $y = hg^{-r} = g^{\alpha}g^{-r} = g^{\alpha - r}$. Peggy has to make sure that she sends a different $r$ with each round of the protocol, if she doesn't then Victor can easily discover the discrete log $\alpha$. If Peggy is reliably able to answer each of Victor's requests for the discrete log, then it is likely that she is not lying, in fact, $prob(\text{Peggy is cheating}) = \left(\frac{1}{2}\right)^{k}$ where $k$ is the number of rounds of the protocol. This probability converges to 0 extremely rapidly, so it doesn't take that many rounds to be pretty sure that Peggy is telling the truth, she can only reliably answer Victor's requests if she actually knows $\alpha$ (which means she can send $\alpha - r$ reliably). 
 
 No information is leaked here as it is impossible to discover the value of $\alpha$ without solving the discrete log problem, which seems to be computationally hard empirically. It is also impossible for an outside observer from being able to tell the difference between a fake round and a true round. This means that Peggy and Victor can be working together to make it seem like a true round is happening, but an outside observer would never be able to tell this just from the information being sent back and forth. This is the crux of the (perfect) zero knowledge protocol. 
 
