@@ -288,13 +288,15 @@ Chose random $r$ which is kept secret. Then have the person sign $Mr^{e}$ i.e co
 
 
 \section{Zero Knowledge Proofs}
-The goal of zero knowledge proofs is to prove to somebody that certain sensitive information is known without revealing exactly what that information is. These proofs are probabilistic in nature as one can only be sure with a high probability that the other person involved isn't cheating or lying in some way. The probabilities of repeated cheating become extremely low as the rounds go on so one can be fairly certain after a certain number of rounds. 
+The goal of zero knowledge proofs is to prove to somebody that certain sensitive information is known without revealing exactly what that information is. These proofs are probabilistic in nature as one can only be sure with a (very) high probability that the other person involved isn't cheating or lying in some way. The probabilities of repeated cheating become extremely low as the rounds go on so one can be fairly certain after a certain number of rounds. 
 
-The proofs are considered zero knowledge as a third party cannot distinguish a fake session from a real session, i.e. it is indistinguishable to a third party that the entire protocol is being faked or not. There is no information leakage going on. 
+The proofs are considered zero knowledge as a third party cannot distinguish a fake session from a real session, i.e. it is indistinguishable to a third party that the entire protocol is being faked or not. There is no information leakage going on. No information is gained by the verifier when conducting a zero knowledge proof. If the protocol is truly zero knowledge then the verifier only becomes sure that the prover is being honest. 
 
 It seems that, at least, some NP-hard problems have a zero knowledge protocol associated with them. For example, Graph 3-Colourability, Hamiltonian Circuit, etc. 
 
-\subsection{Ali Baba and the Thief}
+Applications of these things are seen in online voting protocols, authentication (passwords, identity, etc). There are also variants that include non-interactive zero knowledge protocols that may be useful for password verification. 
+
+\subsection{Ali Baba's cave}
 \subsection{Discrete Logarithm}
 The zero knowledge protocol for the Discrete Logarithm problem goes something like this. Suppose that $h = g^{\alpha}$ mod $p$ is public information. Peggy ($P$ for short) claims to know a solution, i.e, she claims to know $\alpha$. How can she prove that to Victor, $V$, without revealing any of the information. How can she convince Victor that she actually knows the solution to the discrete logarithm problem without any information leakage. 
 
@@ -328,7 +330,6 @@ It is important to note that a different $r$ must be used for each round or the 
 
 \subsection{Graph 3-Colourability}
 \subsection{Hamiltonian Circuit}
-\subsection{Graph Isomorphism}
 \subsection{The Feige-Fiat-Shamir Identification Scheme}
 
 \section{Elliptic Curve Cryptography}
